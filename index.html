@@ -1,0 +1,1335 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Sistema de Combate a Incêndio — Ferramenta Técnica Profissional</title>
+<link href="https://fonts.googleapis.com/css2?family=Space+Mono:wght@400;700&family=Syne:wght@400;600;700;800&family=IBM+Plex+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
+<style>
+:root {
+  --vermelho: #C41E1E;
+  --vermelho-vivo: #E02020;
+  --grafite: #0E0E0E;
+  --grafite-m: #1A1A1A;
+  --grafite-l: #242424;
+  --cinza: #6B6B6B;
+  --cinza-l: #A8A8A8;
+  --off: #F5F3F0;
+  --branco: #FFFFFF;
+  --linha: rgba(255,255,255,0.08);
+  --gold: #C8A96E;
+}
+
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+html { scroll-behavior: smooth; }
+
+body {
+  background: var(--grafite);
+  color: var(--branco);
+  font-family: 'IBM Plex Sans', sans-serif;
+  overflow-x: hidden;
+}
+
+/* ── NOISE TEXTURE ── */
+body::before {
+  content: '';
+  position: fixed;
+  inset: 0;
+  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='1'/%3E%3C/svg%3E");
+  opacity: 0.025;
+  pointer-events: none;
+  z-index: 1000;
+}
+
+/* ══ HERO ══ */
+.hero {
+  min-height: 100vh;
+  display: grid;
+  grid-template-rows: auto 1fr auto;
+  position: relative;
+  overflow: hidden;
+}
+
+.hero-bg {
+  position: absolute;
+  inset: 0;
+  background:
+    radial-gradient(ellipse 60% 50% at 80% 30%, rgba(196,30,30,0.12) 0%, transparent 70%),
+    radial-gradient(ellipse 40% 60% at 10% 80%, rgba(196,30,30,0.06) 0%, transparent 60%);
+}
+
+.hero-grid {
+  position: absolute;
+  inset: 0;
+  background-image:
+    linear-gradient(rgba(255,255,255,0.03) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(255,255,255,0.03) 1px, transparent 1px);
+  background-size: 60px 60px;
+}
+
+.hero-grid::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(to bottom, transparent 60%, var(--grafite) 100%);
+}
+
+nav {
+  position: relative;
+  z-index: 10;
+  padding: 28px 64px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  border-bottom: 1px solid var(--linha);
+}
+
+.nav-marca {
+  font-family: 'Syne', sans-serif;
+  font-size: 13px;
+  font-weight: 700;
+  letter-spacing: 3px;
+  text-transform: uppercase;
+  color: var(--cinza-l);
+}
+
+.nav-marca span { color: var(--vermelho); }
+
+.nav-badge {
+  background: rgba(196,30,30,0.15);
+  border: 1px solid rgba(196,30,30,0.4);
+  color: #FF6B6B;
+  font-family: 'Space Mono', monospace;
+  font-size: 10px;
+  padding: 4px 12px;
+  border-radius: 2px;
+  letter-spacing: 1px;
+}
+
+.hero-content {
+  position: relative;
+  z-index: 10;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  padding: 60px 64px 40px;
+  max-width: 900px;
+}
+
+.hero-tag {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 32px;
+}
+
+.hero-tag-line {
+  width: 32px;
+  height: 1px;
+  background: var(--vermelho);
+}
+
+.hero-tag-text {
+  font-family: 'Space Mono', monospace;
+  font-size: 10px;
+  color: var(--vermelho);
+  letter-spacing: 2px;
+  text-transform: uppercase;
+}
+
+.hero-h1 {
+  font-family: 'Syne', sans-serif;
+  font-size: clamp(42px, 6vw, 80px);
+  font-weight: 800;
+  line-height: 1.0;
+  letter-spacing: -2px;
+  margin-bottom: 24px;
+}
+
+.hero-h1 em {
+  font-style: normal;
+  color: var(--vermelho);
+  position: relative;
+}
+
+.hero-h1 em::after {
+  content: '';
+  position: absolute;
+  bottom: 4px;
+  left: 0;
+  right: 0;
+  height: 3px;
+  background: var(--vermelho);
+  opacity: 0.4;
+}
+
+.hero-sub {
+  font-size: 18px;
+  font-weight: 300;
+  color: var(--cinza-l);
+  line-height: 1.6;
+  max-width: 580px;
+  margin-bottom: 48px;
+}
+
+.hero-sub strong { color: var(--branco); font-weight: 500; }
+
+.hero-ctas {
+  display: flex;
+  gap: 16px;
+  flex-wrap: wrap;
+  align-items: center;
+}
+
+.btn-primary {
+  background: var(--vermelho);
+  color: #fff;
+  font-family: 'Syne', sans-serif;
+  font-size: 14px;
+  font-weight: 700;
+  letter-spacing: 1px;
+  text-transform: uppercase;
+  padding: 16px 36px;
+  border: none;
+  cursor: pointer;
+  text-decoration: none;
+  display: inline-block;
+  transition: all 0.2s;
+  clip-path: polygon(0 0, calc(100% - 12px) 0, 100% 12px, 100% 100%, 12px 100%, 0 calc(100% - 12px));
+}
+
+.btn-primary:hover {
+  background: var(--vermelho-vivo);
+  transform: translateY(-2px);
+  box-shadow: 0 8px 32px rgba(196,30,30,0.4);
+}
+
+.btn-secondary {
+  color: var(--cinza-l);
+  font-family: 'Space Mono', monospace;
+  font-size: 12px;
+  letter-spacing: 1px;
+  text-decoration: none;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 16px 0;
+  border-bottom: 1px solid transparent;
+  transition: all 0.2s;
+}
+
+.btn-secondary:hover {
+  color: var(--branco);
+  border-bottom-color: var(--branco);
+}
+
+.hero-stats {
+  position: relative;
+  z-index: 10;
+  padding: 32px 64px;
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  border-top: 1px solid var(--linha);
+}
+
+.stat {
+  padding: 24px 0;
+  border-right: 1px solid var(--linha);
+  padding-right: 32px;
+}
+.stat:last-child { border-right: none; }
+.stat:not(:first-child) { padding-left: 32px; }
+
+.stat-num {
+  font-family: 'Space Mono', monospace;
+  font-size: 36px;
+  font-weight: 700;
+  color: var(--branco);
+  line-height: 1;
+  margin-bottom: 6px;
+}
+
+.stat-num span { color: var(--vermelho); }
+
+.stat-label {
+  font-size: 12px;
+  color: var(--cinza);
+  letter-spacing: 0.5px;
+  line-height: 1.4;
+}
+
+/* ══ SECTION BASES ══ */
+section {
+  padding: 100px 64px;
+  position: relative;
+}
+
+.section-tag {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 16px;
+}
+.section-tag-dot {
+  width: 6px; height: 6px;
+  border-radius: 50%;
+  background: var(--vermelho);
+}
+.section-tag-text {
+  font-family: 'Space Mono', monospace;
+  font-size: 10px;
+  color: var(--vermelho);
+  letter-spacing: 2px;
+  text-transform: uppercase;
+}
+
+.section-h2 {
+  font-family: 'Syne', sans-serif;
+  font-size: clamp(28px, 4vw, 48px);
+  font-weight: 800;
+  line-height: 1.1;
+  letter-spacing: -1px;
+  margin-bottom: 16px;
+}
+
+.section-desc {
+  font-size: 16px;
+  color: var(--cinza-l);
+  line-height: 1.7;
+  max-width: 540px;
+  margin-bottom: 60px;
+}
+
+/* ══ PROBLEMA ══ */
+.problema {
+  background: var(--grafite-m);
+  border-top: 1px solid var(--linha);
+  border-bottom: 1px solid var(--linha);
+}
+
+.problema-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 80px;
+  align-items: start;
+}
+
+.dores-list {
+  list-style: none;
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+  margin-top: 40px;
+}
+
+.dor-item {
+  display: flex;
+  align-items: flex-start;
+  gap: 16px;
+  padding: 20px;
+  background: rgba(255,255,255,0.03);
+  border: 1px solid var(--linha);
+  border-left: 3px solid var(--vermelho);
+}
+
+.dor-icon {
+  font-size: 20px;
+  flex-shrink: 0;
+  margin-top: 2px;
+}
+
+.dor-text {
+  font-size: 14px;
+  color: var(--cinza-l);
+  line-height: 1.6;
+}
+.dor-text strong { color: var(--branco); }
+
+.problema-right {
+  padding-top: 40px;
+}
+
+.quote-block {
+  border-left: 3px solid var(--gold);
+  padding-left: 24px;
+  margin-bottom: 40px;
+}
+
+.quote-text {
+  font-family: 'Syne', sans-serif;
+  font-size: 22px;
+  font-weight: 600;
+  line-height: 1.4;
+  color: var(--off);
+  margin-bottom: 12px;
+}
+
+.quote-author {
+  font-family: 'Space Mono', monospace;
+  font-size: 11px;
+  color: var(--cinza);
+  letter-spacing: 1px;
+}
+
+/* ══ FUNCIONALIDADES ══ */
+.features-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 1px;
+  background: var(--linha);
+  border: 1px solid var(--linha);
+  margin-top: 60px;
+}
+
+.feat {
+  background: var(--grafite);
+  padding: 36px 32px;
+  transition: background 0.2s;
+}
+
+.feat:hover { background: var(--grafite-l); }
+
+.feat-icon {
+  font-size: 28px;
+  margin-bottom: 16px;
+  display: block;
+}
+
+.feat-title {
+  font-family: 'Syne', sans-serif;
+  font-size: 16px;
+  font-weight: 700;
+  margin-bottom: 10px;
+  color: var(--branco);
+}
+
+.feat-desc {
+  font-size: 13px;
+  color: var(--cinza);
+  line-height: 1.7;
+}
+
+.feat-tag {
+  display: inline-block;
+  margin-top: 14px;
+  font-family: 'Space Mono', monospace;
+  font-size: 9px;
+  letter-spacing: 1px;
+  padding: 3px 8px;
+  background: rgba(196,30,30,0.12);
+  border: 1px solid rgba(196,30,30,0.25);
+  color: #FF8080;
+}
+
+/* ══ CENÁRIOS ══ */
+.cenarios {
+  background: var(--grafite-m);
+}
+
+.cenarios-list {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 24px;
+  margin-top: 60px;
+}
+
+.cenario-card {
+  background: var(--grafite);
+  border: 1px solid var(--linha);
+  padding: 32px;
+  position: relative;
+  overflow: hidden;
+}
+
+.cenario-card::before {
+  content: '';
+  position: absolute;
+  top: 0; left: 0; right: 0;
+  height: 3px;
+  background: var(--vermelho);
+}
+
+.cenario-num {
+  font-family: 'Space Mono', monospace;
+  font-size: 11px;
+  color: var(--vermelho);
+  letter-spacing: 2px;
+  margin-bottom: 12px;
+}
+
+.cenario-title {
+  font-family: 'Syne', sans-serif;
+  font-size: 18px;
+  font-weight: 700;
+  margin-bottom: 12px;
+}
+
+.cenario-norma {
+  font-family: 'Space Mono', monospace;
+  font-size: 10px;
+  color: var(--cinza);
+  letter-spacing: 1px;
+  margin-bottom: 16px;
+}
+
+.cenario-itens {
+  list-style: none;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.cenario-itens li {
+  font-size: 13px;
+  color: var(--cinza-l);
+  padding-left: 14px;
+  position: relative;
+}
+
+.cenario-itens li::before {
+  content: '→';
+  position: absolute;
+  left: 0;
+  color: var(--vermelho);
+  font-size: 11px;
+}
+
+/* ══ MEMORIAL ══ */
+.memorial-section {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 80px;
+  align-items: center;
+}
+
+.memorial-preview {
+  background: var(--grafite-m);
+  border: 1px solid var(--linha);
+  padding: 32px;
+  font-family: 'Space Mono', monospace;
+  font-size: 11px;
+  color: var(--cinza-l);
+  line-height: 1.8;
+  position: relative;
+  overflow: hidden;
+}
+
+.memorial-preview::before {
+  content: 'MEMORIAL.PDF';
+  position: absolute;
+  top: 0; left: 0; right: 0;
+  background: var(--vermelho);
+  color: #fff;
+  font-size: 9px;
+  letter-spacing: 2px;
+  padding: 6px 16px;
+  font-family: 'Space Mono', monospace;
+}
+
+.memorial-preview-content {
+  margin-top: 24px;
+}
+
+.mp-section { margin-bottom: 12px; }
+.mp-h { color: var(--vermelho); font-size: 10px; letter-spacing: 1px; margin-bottom: 4px; }
+.mp-formula {
+  background: rgba(26,115,232,0.1);
+  border-left: 2px solid #1a73e8;
+  padding: 4px 8px;
+  color: #8ab4f8;
+  margin: 4px 0;
+  font-size: 10px;
+}
+.mp-result { color: var(--branco); font-size: 12px; }
+
+.memorial-benefits {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+  margin-top: 32px;
+}
+
+.benefit {
+  display: flex;
+  gap: 16px;
+  align-items: flex-start;
+}
+
+.benefit-icon {
+  width: 36px;
+  height: 36px;
+  background: rgba(196,30,30,0.1);
+  border: 1px solid rgba(196,30,30,0.25);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 16px;
+  flex-shrink: 0;
+}
+
+.benefit-text strong {
+  display: block;
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--branco);
+  margin-bottom: 4px;
+}
+
+.benefit-text span {
+  font-size: 13px;
+  color: var(--cinza);
+  line-height: 1.5;
+}
+
+/* ══ DIFERENCIAIS ══ */
+.diferenciais {
+  background: var(--vermelho);
+  padding: 80px 64px;
+}
+
+.diferenciais-inner {
+  display: grid;
+  grid-template-columns: 1fr 1fr 1fr 1fr;
+  gap: 1px;
+  background: rgba(255,255,255,0.15);
+  border: 1px solid rgba(255,255,255,0.15);
+}
+
+.dif-item {
+  background: var(--vermelho);
+  padding: 40px 28px;
+  text-align: center;
+}
+
+.dif-num {
+  font-family: 'Space Mono', monospace;
+  font-size: 48px;
+  font-weight: 700;
+  color: rgba(255,255,255,0.15);
+  line-height: 1;
+  margin-bottom: 12px;
+}
+
+.dif-title {
+  font-family: 'Syne', sans-serif;
+  font-size: 15px;
+  font-weight: 700;
+  color: #fff;
+  margin-bottom: 8px;
+}
+
+.dif-desc {
+  font-size: 12px;
+  color: rgba(255,255,255,0.7);
+  line-height: 1.6;
+}
+
+/* ══ PARA QUEM ══ */
+.para-quem {
+  background: var(--grafite-m);
+}
+
+.personas {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 20px;
+  margin-top: 60px;
+}
+
+.persona {
+  padding: 28px 24px;
+  border: 1px solid var(--linha);
+  background: var(--grafite);
+  text-align: center;
+  transition: border-color 0.2s, transform 0.2s;
+}
+
+.persona:hover {
+  border-color: rgba(196,30,30,0.4);
+  transform: translateY(-4px);
+}
+
+.persona-emoji { font-size: 32px; margin-bottom: 12px; display: block; }
+
+.persona-title {
+  font-family: 'Syne', sans-serif;
+  font-size: 14px;
+  font-weight: 700;
+  margin-bottom: 8px;
+}
+
+.persona-desc {
+  font-size: 12px;
+  color: var(--cinza);
+  line-height: 1.6;
+}
+
+/* ══ OFERTA ══ */
+.oferta {
+  background: var(--grafite);
+  display: flex;
+  justify-content: center;
+  padding: 100px 64px;
+}
+
+.oferta-card {
+  background: var(--grafite-m);
+  border: 1px solid var(--linha);
+  max-width: 560px;
+  width: 100%;
+  position: relative;
+  overflow: hidden;
+}
+
+.oferta-card::before {
+  content: 'OFERTA DE LANÇAMENTO';
+  position: absolute;
+  top: 0; left: 0; right: 0;
+  background: var(--vermelho);
+  color: #fff;
+  font-family: 'Space Mono', monospace;
+  font-size: 9px;
+  letter-spacing: 2px;
+  padding: 8px;
+  text-align: center;
+}
+
+.oferta-body {
+  padding: 48px 40px 40px;
+}
+
+.oferta-title {
+  font-family: 'Syne', sans-serif;
+  font-size: 24px;
+  font-weight: 800;
+  margin-bottom: 8px;
+  color: var(--branco);
+}
+
+.oferta-subtitle {
+  font-size: 13px;
+  color: var(--cinza);
+  margin-bottom: 32px;
+  line-height: 1.5;
+}
+
+.oferta-includes {
+  list-style: none;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  margin-bottom: 36px;
+}
+
+.oferta-includes li {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  font-size: 14px;
+  color: var(--cinza-l);
+}
+
+.oferta-includes li::before {
+  content: '✓';
+  width: 20px; height: 20px;
+  background: rgba(30,132,73,0.15);
+  border: 1px solid rgba(30,132,73,0.3);
+  color: #4ade80;
+  font-size: 11px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  font-weight: 700;
+}
+
+.oferta-preco {
+  margin-bottom: 28px;
+  padding: 24px;
+  background: rgba(255,255,255,0.03);
+  border: 1px solid var(--linha);
+  text-align: center;
+}
+
+.preco-de {
+  font-size: 13px;
+  color: var(--cinza);
+  text-decoration: line-through;
+  margin-bottom: 4px;
+}
+
+.preco-por {
+  font-family: 'Space Mono', monospace;
+  font-size: 42px;
+  font-weight: 700;
+  color: var(--branco);
+  line-height: 1;
+}
+
+.preco-por span {
+  font-size: 18px;
+  color: var(--cinza-l);
+  vertical-align: super;
+}
+
+.preco-obs {
+  font-size: 11px;
+  color: var(--cinza);
+  margin-top: 6px;
+}
+
+.oferta-garantia {
+  text-align: center;
+  font-size: 12px;
+  color: var(--cinza);
+  margin-top: 20px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+}
+
+/* ══ FAQ ══ */
+.faq { background: var(--grafite-m); }
+
+.faq-list {
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+  margin-top: 60px;
+  max-width: 700px;
+  border: 1px solid var(--linha);
+}
+
+.faq-item {
+  border-bottom: 1px solid var(--linha);
+}
+.faq-item:last-child { border-bottom: none; }
+
+.faq-q {
+  padding: 20px 24px;
+  font-size: 14px;
+  font-weight: 500;
+  color: var(--branco);
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  cursor: pointer;
+  gap: 16px;
+}
+
+.faq-q:hover { background: rgba(255,255,255,0.02); }
+
+.faq-q::after {
+  content: '+';
+  font-family: 'Space Mono', monospace;
+  font-size: 18px;
+  color: var(--vermelho);
+  flex-shrink: 0;
+}
+
+.faq-a {
+  padding: 0 24px 20px;
+  font-size: 13px;
+  color: var(--cinza-l);
+  line-height: 1.7;
+}
+
+/* ══ FOOTER ══ */
+footer {
+  border-top: 1px solid var(--linha);
+  padding: 40px 64px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.footer-marca {
+  font-family: 'Syne', sans-serif;
+  font-size: 13px;
+  font-weight: 700;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  color: var(--cinza);
+}
+
+.footer-marca span { color: var(--vermelho); }
+
+.footer-text {
+  font-family: 'Space Mono', monospace;
+  font-size: 10px;
+  color: var(--cinza);
+  letter-spacing: 1px;
+}
+
+/* ══ ANIMAÇÕES ══ */
+@keyframes fadeUp {
+  from { opacity: 0; transform: translateY(30px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.hero-content > * {
+  animation: fadeUp 0.8s ease forwards;
+  opacity: 0;
+}
+.hero-tag { animation-delay: 0.1s; }
+.hero-h1 { animation-delay: 0.2s; }
+.hero-sub { animation-delay: 0.3s; }
+.hero-ctas { animation-delay: 0.4s; }
+
+/* ══ DIVIDER ══ */
+.divider {
+  height: 1px;
+  background: linear-gradient(to right, transparent, var(--vermelho), transparent);
+  margin: 0 64px;
+  opacity: 0.4;
+}
+
+/* ══ RESPONSIVE ══ */
+@media (max-width: 900px) {
+  nav, section, .hero-content, .hero-stats, footer { padding-left: 28px; padding-right: 28px; }
+  .problema-grid, .memorial-section { grid-template-columns: 1fr; gap: 40px; }
+  .features-grid, .cenarios-list { grid-template-columns: 1fr; }
+  .personas { grid-template-columns: 1fr 1fr; }
+  .diferenciais-inner { grid-template-columns: 1fr 1fr; }
+  .hero-stats { grid-template-columns: 1fr 1fr; }
+}
+</style>
+</head>
+<body>
+
+<!-- ══ HERO ══ -->
+<div class="hero">
+  <div class="hero-bg"></div>
+  <div class="hero-grid"></div>
+
+  <nav>
+    <div class="nav-marca">Mascarello <span>Engenharia</span></div>
+    <div class="nav-badge">NBR 17505 · NR-20 · NFPA 11</div>
+  </nav>
+
+  <div class="hero-content">
+    <div class="hero-tag">
+      <div class="hero-tag-line"></div>
+      <div class="hero-tag-text">Ferramenta Técnica Profissional</div>
+    </div>
+
+    <h1 class="hero-h1">
+      Dimensione sistemas<br>
+      de combate a incêndio<br>
+      em <em>minutos</em>.
+    </h1>
+
+    <p class="hero-sub">
+      A ferramenta que <strong>engenheiros e projetistas experientes</strong> usam para calcular vazões, reservatórios e tubulações de sistemas de combate a incêndio industrial — com memorial de cálculo pronto para assinar.
+    </p>
+
+    <div class="hero-ctas">
+      <a href="#oferta" class="btn-primary">Quero a ferramenta →</a>
+      <a href="#funcionalidades" class="btn-secondary">Ver funcionalidades ↓</a>
+    </div>
+  </div>
+
+  <div class="hero-stats">
+    <div class="stat">
+      <div class="stat-num">3<span>+</span></div>
+      <div class="stat-label">Cenários de combate<br>cobertos (Armaz., Destilaria, Plataforma)</div>
+    </div>
+    <div class="stat">
+      <div class="stat-num">100<span>%</span></div>
+      <div class="stat-label">Offline — sem internet,<br>sem assinatura mensal</div>
+    </div>
+    <div class="stat">
+      <div class="stat-num">1<span>x</span></div>
+      <div class="stat-label">Arquivo HTML — abre em<br>qualquer navegador</div>
+    </div>
+    <div class="stat">
+      <div class="stat-num">NBR<span>/</span>NR</div>
+      <div class="stat-label">Embasado em NBR 17505,<br>NR-20, NFPA 11</div>
+    </div>
+  </div>
+</div>
+
+<div class="divider"></div>
+
+<!-- ══ PROBLEMA ══ -->
+<section class="problema">
+  <div class="problema-grid">
+    <div>
+      <div class="section-tag">
+        <div class="section-tag-dot"></div>
+        <div class="section-tag-text">O problema que todo projetista conhece</div>
+      </div>
+      <h2 class="section-h2">Dimensionar na mão cansa. E ainda cobra.</h2>
+      <p class="section-desc">Cada projeto de PPCI industrial exige horas de cálculo manual, conferência de norma e formatação de memorial. Isso não é engenharia — é retrabalho.</p>
+
+      <ul class="dores-list">
+        <li class="dor-item">
+          <div class="dor-icon">⏱️</div>
+          <div class="dor-text"><strong>Horas perdidas em planilhas frágeis</strong> — uma célula errada e toda a cadeia de cálculo vai junto, sem aviso.</div>
+        </li>
+        <li class="dor-item">
+          <div class="dor-icon">📄</div>
+          <div class="dor-text"><strong>Memorial de cálculo do zero em todo projeto</strong> — mesmo quando a lógica é idêntica ao anterior.</div>
+        </li>
+        <li class="dor-item">
+          <div class="dor-icon">🔍</div>
+          <div class="dor-text"><strong>Insegurança na entrega ao CBPMESP ou Corpo de Bombeiros</strong> — "será que os parâmetros da norma estão certos?"</div>
+        </li>
+        <li class="dor-item">
+          <div class="dor-icon">💸</div>
+          <div class="dor-text"><strong>Tempo é dinheiro</strong> — cada hora extra num cálculo é uma hora a menos em novos projetos ou em descanso.</div>
+        </li>
+      </ul>
+    </div>
+
+    <div class="problema-right">
+      <div class="quote-block">
+        <div class="quote-text">"Um sistema bem dimensionado protege vidas. Um memorial bem feito protege você."</div>
+        <div class="quote-author">— Princípio da engenharia de segurança industrial</div>
+      </div>
+
+      <p style="font-size:15px; color:var(--cinza-l); line-height:1.8; margin-bottom:24px;">
+        A ferramenta foi construída por um engenheiro que faz PPCI no dia a dia. Não é teoria — é o que funciona na prática de campo, do croqui até a aprovação no CBPMESP.
+      </p>
+
+      <p style="font-size:15px; color:var(--cinza-l); line-height:1.8;">
+        Um único arquivo HTML que você abre no Chrome, preenche os dados do projeto, e em <strong style="color:var(--branco)">menos de 5 minutos</strong> tem o dimensionamento completo e o memorial pronto para imprimir ou salvar em PDF.
+      </p>
+    </div>
+  </div>
+</section>
+
+<!-- ══ FUNCIONALIDADES ══ -->
+<section id="funcionalidades">
+  <div class="section-tag">
+    <div class="section-tag-dot"></div>
+    <div class="section-tag-text">O que a ferramenta faz</div>
+  </div>
+  <h2 class="section-h2">Tudo que você precisa,<br>nada que você não precisa.</h2>
+  <p class="section-desc">Cada funcionalidade foi pensada para o workflow real de um projetista de PPCI industrial.</p>
+
+  <div class="features-grid">
+    <div class="feat">
+      <span class="feat-icon">🔥</span>
+      <div class="feat-title">Cálculo Automático em Tempo Real</div>
+      <div class="feat-desc">Altere qualquer parâmetro e todos os resultados — vazões, RTI, LGE, DN de tubulação — atualizam instantaneamente. Sem botão de calcular, sem espera.</div>
+      <div class="feat-tag">AUTO-UPDATE</div>
+    </div>
+    <div class="feat">
+      <span class="feat-icon">💧</span>
+      <div class="feat-title">Três Cenários de Combate</div>
+      <div class="feat-desc">Armazenamento em tanques, destilaria e plataforma de processo. Cada aba tem seus próprios parâmetros e lógica de cálculo independentes.</div>
+      <div class="feat-tag">MULTI-CENÁRIO</div>
+    </div>
+    <div class="feat">
+      <span class="feat-icon">📊</span>
+      <div class="feat-title">Diagrama Dinâmico do Sistema</div>
+      <div class="feat-desc">Visualização automática do cenário de incêndio com RTI, bomba, FIREDOS, espuma e água — atualizada em tempo real conforme os dados mudam.</div>
+      <div class="feat-tag">SVG DINÂMICO</div>
+    </div>
+    <div class="feat">
+      <span class="feat-icon">🔩</span>
+      <div class="feat-title">Dimensionamento de Tubulações</div>
+      <div class="feat-desc">Seleção automática de DN nominal por trecho, com critério de velocidade máxima ≤ 3,0 m/s. Indicação visual de trechos dentro ou fora do critério.</div>
+      <div class="feat-tag">ASTM A53 / API 5L</div>
+    </div>
+    <div class="feat">
+      <span class="feat-icon">📄</span>
+      <div class="feat-title">Memorial de Cálculo Profissional</div>
+      <div class="feat-desc">Documento A4 completo, com cabeçalho técnico, desenvolvimento das equações, tabelas de resultados, área para assinatura e campo para ART.</div>
+      <div class="feat-tag">EXPORTA PDF</div>
+    </div>
+    <div class="feat">
+      <span class="feat-icon">💾</span>
+      <div class="feat-title">Salvar com Valores Preenchidos</div>
+      <div class="feat-desc">Salve o arquivo HTML com todos os dados do projeto atual embutidos. Abra depois e os valores estão lá — sem banco de dados, sem login.</div>
+      <div class="feat-tag">HTML PORTABLE</div>
+    </div>
+    <div class="feat">
+      <span class="feat-icon">🛡️</span>
+      <div class="feat-title">Resfriamento de Tanques Vizinhos</div>
+      <div class="feat-desc">Cálculo automático da área molhada dos tanques vizinhos conforme NBR 17505-5, item 6.5 — parâmetro frequentemente negligenciado em planilhas genéricas.</div>
+      <div class="feat-tag">NBR 17505-5</div>
+    </div>
+    <div class="feat">
+      <span class="feat-icon">🧪</span>
+      <div class="feat-title">Cálculo de LGE — Proporcionador 3%</div>
+      <div class="feat-desc">Volume de Líquido Gerador de Espuma calculado automaticamente para dimensionamento do tanque de FIREDOS / proporcionador.</div>
+      <div class="feat-tag">FIREDOS / BLADDER</div>
+    </div>
+    <div class="feat">
+      <span class="feat-icon">🌐</span>
+      <div class="feat-title">100% Offline, Zero Assinatura</div>
+      <div class="feat-desc">Um arquivo. Abre no Chrome ou Edge. Funciona sem internet, sem conta, sem mensalidade. Seus dados ficam no seu computador — não em servidor nenhum.</div>
+      <div class="feat-tag">FILE:// LOCAL</div>
+    </div>
+  </div>
+</section>
+
+<div class="divider"></div>
+
+<!-- ══ CENÁRIOS ══ -->
+<section class="cenarios">
+  <div class="section-tag">
+    <div class="section-tag-dot"></div>
+    <div class="section-tag-text">Cenários cobertos</div>
+  </div>
+  <h2 class="section-h2">Da refinaria ao parque<br>de armazenamento.</h2>
+  <p class="section-desc">Cada cenário reflete a lógica prescrita pela norma correspondente, com parâmetros ajustáveis para cada projeto.</p>
+
+  <div class="cenarios-list">
+    <div class="cenario-card">
+      <div class="cenario-num">01 / ARMAZENAMENTO</div>
+      <div class="cenario-title">Tanques de Armazenagem</div>
+      <div class="cenario-norma">NBR 17505-5 · NR-20</div>
+      <ul class="cenario-itens">
+        <li>Câmaras de espuma por topo</li>
+        <li>Anel de resfriamento do costado</li>
+        <li>Resfriamento de tanques vizinhos</li>
+        <li>Proteção da bacia de contenção</li>
+        <li>Hidrantes simultâneos</li>
+        <li>RTI completa (água + LGE)</li>
+      </ul>
+    </div>
+    <div class="cenario-card">
+      <div class="cenario-num">02 / DESTILARIA</div>
+      <div class="cenario-title">Área de Destilaria / Processo</div>
+      <div class="cenario-norma">NBR 17505-6 · NR-20</div>
+      <ul class="cenario-itens">
+        <li>Canhão de resfriamento (area)</li>
+        <li>Aplicação de espuma por canhão</li>
+        <li>Hidrantes de área</li>
+        <li>Reserva combinada</li>
+        <li>LGE para proporcionador</li>
+      </ul>
+    </div>
+    <div class="cenario-card">
+      <div class="cenario-num">03 / PLATAFORMA</div>
+      <div class="cenario-title">Plataforma de Processo</div>
+      <div class="cenario-norma">NFPA 11 · NBR 17505</div>
+      <ul class="cenario-itens">
+        <li>Múltiplos canhões de resfriamento</li>
+        <li>Cobertura de espuma por área</li>
+        <li>Vazão total por área de plataforma</li>
+        <li>RTI (resfriamento + espuma)</li>
+        <li>LGE para sistema de espuma</li>
+      </ul>
+    </div>
+  </div>
+</section>
+
+<!-- ══ MEMORIAL ══ -->
+<section>
+  <div class="memorial-section">
+    <div>
+      <div class="section-tag">
+        <div class="section-tag-dot"></div>
+        <div class="section-tag-text">Memorial de cálculo</div>
+      </div>
+      <h2 class="section-h2">O documento que faltava no seu workflow.</h2>
+      <p class="section-desc">Memorial de cálculo completo, com linguagem técnica, desenvolvimento das equações e formatação profissional. Pronto para assinar e protocolar.</p>
+
+      <div class="memorial-benefits">
+        <div class="benefit">
+          <div class="benefit-icon">✍️</div>
+          <div class="benefit-text">
+            <strong>Dados do responsável técnico</strong>
+            <span>Insira nome, CREA, número da ART, data, cliente, projeto e localização. O documento reflete tudo automaticamente.</span>
+          </div>
+        </div>
+        <div class="benefit">
+          <div class="benefit-icon">📐</div>
+          <div class="benefit-text">
+            <strong>Desenvolvimento matemático completo</strong>
+            <span>Todas as equações exibidas com substituição dos valores reais — não apenas os resultados, mas o raciocínio inteiro.</span>
+          </div>
+        </div>
+        <div class="benefit">
+          <div class="benefit-icon">🖨️</div>
+          <div class="benefit-text">
+            <strong>Exportação PDF com um clique</strong>
+            <span>Botão "Exportar PDF" abre o diálogo de impressão do navegador — sem instalar software adicional.</span>
+          </div>
+        </div>
+        <div class="benefit">
+          <div class="benefit-icon">⚖️</div>
+          <div class="benefit-text">
+            <strong>Declaração de responsabilidade técnica</strong>
+            <span>Texto padrão vinculando o memorial à ART correspondente, conforme exigência dos órgãos de fiscalização.</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="memorial-preview">
+      <div class="memorial-preview-content">
+        <div class="mp-section">
+          <div class="mp-h">MEMORIAL DESCRITIVO DE CÁLCULO</div>
+          <div style="color:var(--cinza-l); font-size:10px; margin-bottom:4px;">Sistema de Combate a Incêndio — Armazenagem</div>
+          <div style="color:var(--cinza); font-size:9px;">NBR 17505 · NR-20 · NFPA 11 · NBR 13714</div>
+        </div>
+        <hr style="border:none;border-top:1px solid var(--linha);margin:12px 0;">
+        <div class="mp-section">
+          <div class="mp-h">2.1 ÁREAS DE REFERÊNCIA</div>
+          <div class="mp-formula">A_costado = π × D × H = π × 14,0 × 12,0 = 527,79 m²</div>
+          <div class="mp-formula">A_topo = π × D² / 4 = π × 14² / 4 = 153,94 m²</div>
+        </div>
+        <div class="mp-section">
+          <div class="mp-h">2.2 COMBATE ESPUMA — CÂMARAS</div>
+          <div class="mp-formula">Q_câmaras = 153,94 × 12,5 × 0,06 = 115,46 m³/h</div>
+          <div class="mp-result">→ 3 câmaras × 641,4 L/min cada</div>
+        </div>
+        <div class="mp-section">
+          <div class="mp-h">2.7 VAZÃO TOTAL DA BOMBA</div>
+          <div class="mp-formula">Q_bomba = 115,46 + 18,00 + 63,33 + 36,00</div>
+          <div style="color:#4ade80; font-size:12px; font-weight:700; margin-top:4px;">= 232,79 m³/h ≡ 3.879,8 L/min ✓</div>
+        </div>
+        <hr style="border:none;border-top:1px solid var(--linha);margin:12px 0;">
+        <div style="color:var(--cinza); font-size:9px; text-align:center;">
+          Eng. Lucas Mascarello · CREA-SC 221902-8<br>
+          ART n.º 2025SC000001 · Emitido 12/03/2025
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ══ DIFERENCIAIS ══ -->
+<section class="diferenciais">
+  <div class="diferenciais-inner">
+    <div class="dif-item">
+      <div class="dif-num">01</div>
+      <div class="dif-title">Feito por quem usa</div>
+      <div class="dif-desc">Desenvolvido por engenheiro com rotina diária de PPCI industrial. Não é um exercício acadêmico.</div>
+    </div>
+    <div class="dif-item">
+      <div class="dif-num">02</div>
+      <div class="dif-title">Zero dependência</div>
+      <div class="dif-desc">Sem Excel, sem servidor, sem assinatura. Um arquivo que funciona para sempre no seu notebook.</div>
+    </div>
+    <div class="dif-item">
+      <div class="dif-num">03</div>
+      <div class="dif-title">Norma embutida</div>
+      <div class="dif-desc">Critérios da NBR 17505, NR-20 e NFPA 11 já implementados na lógica — não precisa abrir a norma para cada cálculo.</div>
+    </div>
+    <div class="dif-item">
+      <div class="dif-num">04</div>
+      <div class="dif-title">Entrega imediata</div>
+      <div class="dif-desc">Acesso instantâneo após a compra. Comece a usar no mesmo dia — inclusive no próximo projeto que chegar.</div>
+    </div>
+  </div>
+</section>
+
+<!-- ══ PARA QUEM ══ -->
+<section class="para-quem">
+  <div class="section-tag">
+    <div class="section-tag-dot"></div>
+    <div class="section-tag-text">Para quem é esta ferramenta</div>
+  </div>
+  <h2 class="section-h2">Se você projeta PPCI industrial,<br>esta ferramenta é sua.</h2>
+
+  <div class="personas">
+    <div class="persona">
+      <span class="persona-emoji">👷</span>
+      <div class="persona-title">Engenheiro de Segurança</div>
+      <div class="persona-desc">Que elabora PPCI e precisa de memorial robusto para laudo técnico e ART.</div>
+    </div>
+    <div class="persona">
+      <span class="persona-emoji">📐</span>
+      <div class="persona-title">Projetista / Desenhista</div>
+      <div class="persona-desc">Que dimensiona sistemas em escritório e precisa de referência rápida para especificações.</div>
+    </div>
+    <div class="persona">
+      <span class="persona-emoji">🏭</span>
+      <div class="persona-title">Eng. de Processo / Planta</div>
+      <div class="persona-desc">Que revisa ou contesta projetos de fornecedores e precisa de contra-ponto de cálculo.</div>
+    </div>
+    <div class="persona">
+      <span class="persona-emoji">📚</span>
+      <div class="persona-title">Estudante / Pós-graduando</div>
+      <div class="persona-desc">Cursando especialização em Eng. de Segurança e precisando praticar com casos reais.</div>
+    </div>
+  </div>
+</section>
+
+<!-- ══ OFERTA ══ -->
+<section class="oferta" id="oferta">
+  <div class="oferta-card">
+    <div class="oferta-body">
+      <div class="oferta-title">Sistema de Combate a Incêndio</div>
+      <div class="oferta-subtitle">Ferramenta técnica profissional para dimensionamento de sistemas industriais. Acesso vitalício, sem mensalidade.</div>
+
+      <ul class="oferta-includes">
+        <li>Arquivo HTML completo (abre em qualquer navegador)</li>
+        <li>3 cenários: Armazenamento, Destilaria e Plataforma</li>
+        <li>Diagrama dinâmico do sistema de combate</li>
+        <li>Dimensionamento automático de tubulações (DN)</li>
+        <li>Memorial de cálculo profissional com exportação PDF</li>
+        <li>Cálculo de RTI e volume de LGE (proporcionador 3%)</li>
+        <li>Função "Salvar como HTML" com dados do projeto</li>
+        <li>Atualizações futuras inclusas</li>
+      </ul>
+
+      <div class="oferta-preco">
+        <div class="preco-de">De R$ 297,00</div>
+        <div class="preco-por"><span>R$</span> 197</div>
+        <div class="preco-obs">Pagamento único · Acesso vitalício · Entrega imediata</div>
+      </div>
+
+      <a href="https://pay.hotmart.com/O104873002T" class="btn-primary" style="display:block;text-align:center;font-size:15px;padding:18px;">
+        Adquirir agora por R$ 197 →
+      </a>
+
+      <div class="oferta-garantia">
+        🔒 7 dias de garantia incondicional · Hotmart Secure
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ══ FAQ ══ -->
+<section class="faq">
+  <div class="section-tag">
+    <div class="section-tag-dot"></div>
+    <div class="section-tag-text">Dúvidas frequentes</div>
+  </div>
+  <h2 class="section-h2">Perguntas e respostas.</h2>
+
+  <div class="faq-list">
+    <div class="faq-item">
+      <div class="faq-q">Preciso instalar algum programa?</div>
+      <div class="faq-a">Não. A ferramenta é um único arquivo .HTML que abre diretamente no Chrome, Edge ou Firefox. Sem instalação, sem cadastro, sem internet.</div>
+    </div>
+    <div class="faq-item">
+      <div class="faq-q">Funciona no Excel ou precisa de algo especial?</div>
+      <div class="faq-a">Não depende de Excel. Funciona no navegador do seu computador, seja Windows, Mac ou Linux. Basta dar dois cliques no arquivo.</div>
+    </div>
+    <div class="faq-item">
+      <div class="faq-q">O memorial de cálculo está dentro da própria ferramenta?</div>
+      <div class="faq-a">Sim. Dentro da ferramenta há uma aba "Memorial de Cálculo" onde você insere os dados do projeto e responsável técnico. O documento é gerado automaticamente e pode ser exportado como PDF pelo próprio navegador.</div>
+    </div>
+    <div class="faq-item">
+      <div class="faq-q">Os critérios de cálculo estão de acordo com as normas?</div>
+      <div class="faq-a">A ferramenta aplica os parâmetros da NBR 17505-5, NBR 17505-6, NR-20 e NFPA 11. Os valores de taxa de aplicação e tempos de reserva são inseridos pelo usuário, conforme o produto e a classificação do risco — garantindo flexibilidade para diferentes cenários.</div>
+    </div>
+    <div class="faq-item">
+      <div class="faq-q">Posso usar em mais de um computador?</div>
+      <div class="faq-a">Sim. Por ser um arquivo local, você pode copiá-lo para qualquer computador, pen drive ou serviço de armazenamento em nuvem (Google Drive, OneDrive) e usar em quantas máquinas quiser.</div>
+    </div>
+    <div class="faq-item">
+      <div class="faq-q">Tenho garantia se não gostar?</div>
+      <div class="faq-a">Sim. A Hotmart oferece 7 dias de garantia incondicional. Se por qualquer motivo não atender suas expectativas, basta solicitar o reembolso.</div>
+    </div>
+  </div>
+</section>
+
+<!-- ══ FOOTER ══ -->
+<footer>
+  <div class="footer-marca">Mascarello <span>Engenharia</span></div>
+  <div class="footer-text">CREA-SC 221902-8 · Florianópolis, SC</div>
+</footer>
+
+</body>
+</html>

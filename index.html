@@ -836,6 +836,89 @@ section {
   line-height: 1.7;
 }
 
+/* ══ VIDEO ══ */
+.video-section {
+  background: var(--grafite-m);
+  border-top: 1px solid var(--linha);
+  border-bottom: 1px solid var(--linha);
+}
+
+.video-inner {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 80px;
+  align-items: center;
+}
+
+.video-embed-wrap {
+  position: relative;
+}
+
+.video-embed-wrap::before {
+  content: '';
+  position: absolute;
+  inset: -1px;
+  border: 1px solid var(--vermelho);
+  opacity: 0.4;
+  pointer-events: none;
+  z-index: 1;
+}
+
+.video-embed-wrap::after {
+  content: 'DEMO — ASSISTA AGORA';
+  position: absolute;
+  top: 0; left: 0;
+  background: var(--vermelho);
+  color: #fff;
+  font-family: 'Space Mono', monospace;
+  font-size: 9px;
+  letter-spacing: 2px;
+  padding: 5px 14px;
+  z-index: 2;
+}
+
+.video-embed-wrap iframe {
+  display: block;
+  width: 100%;
+  aspect-ratio: 16/9;
+  border: none;
+}
+
+.video-text {
+  padding: 8px 0;
+}
+
+.video-text .section-h2 {
+  margin-bottom: 20px;
+}
+
+.video-checklist {
+  list-style: none;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  margin-top: 28px;
+}
+
+.video-checklist li {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  font-size: 14px;
+  color: var(--cinza-l);
+  line-height: 1.5;
+}
+
+.video-checklist li::before {
+  content: '✓';
+  color: var(--vermelho);
+  font-family: 'Space Mono', monospace;
+  font-size: 13px;
+  font-weight: 700;
+  flex-shrink: 0;
+  margin-top: 1px;
+}
+
 /* ══ FOOTER ══ */
 footer {
   border-top: 1px solid var(--linha);
@@ -1064,6 +1147,36 @@ footer {
       <div class="feat-title">100% Offline, Zero Assinatura</div>
       <div class="feat-desc">Um arquivo. Abre no Chrome ou Edge. Funciona sem internet, sem conta, sem mensalidade. Seus dados ficam no seu computador — não em servidor nenhum.</div>
       <div class="feat-tag">FILE:// LOCAL</div>
+    </div>
+  </div>
+</section>
+
+<div class="divider"></div>
+
+<!-- ══ VÍDEO ══ -->
+<section class="video-section">
+  <div class="video-inner">
+    <div class="video-embed-wrap">
+      <iframe
+        src="https://www.youtube.com/embed/OOVUZPVCpeo"
+        title="Demonstração — Sistema de Combate a Incêndio"
+        allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+        allowfullscreen>
+      </iframe>
+    </div>
+    <div class="video-text">
+      <div class="section-tag">
+        <div class="section-tag-dot"></div>
+        <div class="section-tag-text">Veja em ação</div>
+      </div>
+      <h2 class="section-h2">Menos de 10 minutos para entender tudo.</h2>
+      <p class="section-desc" style="margin-bottom: 0;">Assista à demonstração completa: entrada de dados, cálculo automático, memorial e exportação PDF — exatamente como você vai usar no próximo projeto.</p>
+      <ul class="video-checklist">
+        <li>Configuração de um cenário do zero até o resultado final</li>
+        <li>Geração do memorial de cálculo com dados reais</li>
+        <li>Exportação do PDF pronto para protocolar</li>
+        <li>Demonstração da função "Salvar como HTML"</li>
+      </ul>
     </div>
   </div>
 </section>
